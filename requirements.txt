@@ -1,0 +1,6 @@
+hydra-core
+neptune-client
+torch
+transformers
+dataclasses
+datasets
