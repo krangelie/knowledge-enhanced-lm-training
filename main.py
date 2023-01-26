@@ -1,71 +1,67 @@
 import os
 
-from torch.cuda import is_available
 from dataclasses import dataclass
-from omegaconf import MISSING
 import hydra
 from hydra.core.config_store import ConfigStore
 
-#os.environ.setdefault('TOKENIZERS_PARALLELISM', 'true')
-os.environ.setdefault('CUDA_DEVICE_ORDER', 'PCI_BUS_ID')
-os.environ.setdefault('CUDA_VISIBLE_DEVICES', '1')
+from train import train
 
-DEVICE = "cuda" if is_available() else "cpu"
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @dataclass
-class ModelConfig:
-    model_name_or_path: str = MISSING
-    model_dim: int = MISSING
-    dropout: float = 0.0
-    learning_rate: float = 1e-5
-    adam_epsilon: float = 1e-8
-    warmup_steps: int = 0
-    weight_decay: float = 0.0
+class GPT2Config:
+    model_name_or_path: str = "gpt2"  # GPT-2 small
+    model_dim: int = 768
+    context_len: int = 1024
+    #dropout: float = 0.2
+    #learning_rate: float = 1e-5
+    #adam_epsilon: float = 1e-8
     train_batch_size: int = 32
     eval_batch_size: int = 32
-    max_epochs: int = 5
+    epochs: int = 3
     max_seq_length: int = 512
-    devices: int = 1  # num of gpus
-    num_workers: int = 1
-    use_weights: bool = False
-
-
-@dataclass
-class GPT2Config(ModelConfig):
-    model_name_or_path = "gpt2"  # GPT-2 small
-    model_dim = 768
-    dropout: float = 0.2
-    learning_rate: float = 1e-5
-    adam_epsilon: float = 1e-8
-    train_batch_size: int = 32
-    eval_batch_size: int = 32
-    max_epochs: int = 5
-    max_seq_length: int = 512
-    use_weights: bool = True
+    #use_weights: bool = True
 
 
 @dataclass
 class DataConfig:
-    data_path: str = MISSING
+    test_data_path: str = "/export/home/kraft/data/kelm/holdout_split/subsampled_0.0001.jsonl"
 
 
 @dataclass
-class KelmDebugSize(DataConfig):
-    data_path = "."
+class KelmMini(DataConfig):
+    dataset_version: str = "mini"
+    train_data_path: str = "/export/home/kraft/data/kelm/subsampled/subsampled_0.1.jsonl"
+
+
+@dataclass
+class KelmQuarter(DataConfig):
+    dataset_version: str = "quarter"
+    train_data_path: str = "/export/home/kraft/data/kelm/subsampled/subsampled_0.25.jsonl"
+
+
+@dataclass
+class KelmHalf(DataConfig):
+    dataset_version: str = "half"
+    train_data_path: str = "/export/home/kraft/data/kelm/subsampled/subsampled_0.5.jsonl"
 
 
 @dataclass
 class KelmFull(DataConfig):
-    data_path = "."
+    dataset_version: str = "full"
+    train_data_path: str = "/export/home/kraft/data/kelm/kelm_generated_corpus.jsonl"
 
 
 @dataclass
 class MyConfig:
-    model: ModelConfig = GPT2Config()
-    data: DataConfig = KelmDebugSize()
+    model: GPT2Config = GPT2Config()
+    data: DataConfig = KelmQuarter()
+    output_dir: str = "/export/home/kraft/data/kelm/output"
 
 
 cs = ConfigStore.instance()
@@ -74,8 +70,8 @@ cs.store(name="conf", node=MyConfig())
 
 @hydra.main(version_base=None, config_name="conf")
 def my_app(cfg: MyConfig) -> None:
-    #train.main(cfg)
-    pass
+    print(f"Finetuning {cfg.model.model_name_or_path} on {cfg.data.dataset_version} version of KELM")
+    train(cfg)
 
 
 if __name__ == '__main__':
