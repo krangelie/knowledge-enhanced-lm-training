@@ -53,9 +53,9 @@ def create_dev_holdout_splits(cfg, json_list):
 
 @dataclass
 class MyConfig:
-    kelm_path: str = "/export/home/kraft/data/kelm/dev_split/subsampled_0.9999.jsonl"
-    output_dir: str = "/export/home/kraft/data/kelm/subsampled"  # used if not create_holdout
-    subsample_size: float = 0.25  # for subsampling from full or dev
+    kelm_path: str = "./data/kelm/dev_split/subsampled_0.9999.jsonl"
+    output_dir: str = "./data/kelm/subsampled"  # used if not create_holdout
+    subsample_size: float = 0.50  # for subsampling from full or dev
     create_holdout: bool = False
     test_size: float = 0.0001  # for holdout set creation only
     random_state: int = 42
