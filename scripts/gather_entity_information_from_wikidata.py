@@ -7,6 +7,9 @@ import hydra
 from dataclasses import dataclass
 from hydra.core.config_store import ConfigStore
 
+"""This script allows to through all entities (with Q-ID) in a Wikidata dump and extract gender, date and place of 
+birth."""
+
 
 def filter_claims(entity_object):
     try:
