@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer
 import hydra
 from dataclasses import dataclass
 from hydra.core.config_store import ConfigStore
@@ -12,9 +12,10 @@ from hydra.core.config_store import ConfigStore
 
 @dataclass
 class MyConfig:
-    model_name: str = "gpt2_kelm_quarter"
-    language_model_path: str = "./data/pre-trained_language_models/gpt/gpt2_kelm/half"
-    output_dir: str = "./data/generated_texts_for_eval"
+    model_name: str = "gpt2-medium"
+    language_model_path: str = "/export/home/kraft/data/kelm/output/gpt2-medium/kelm_full"
+    output_dir: str = "/export/home/kraft/data/kelm/output/gpt2-medium/kelm_full/generated_texts_for_eval" #"/export/home/kraft/data/kelm/output/gpt2/kelm_quarter/checkpoint-61043/generated_texts_for_eval"
+    tokenizer: str = model_name
     num_return_sequences: int = 3
 
 
@@ -24,7 +25,10 @@ cs.store(name="conf", node=MyConfig())
 
 @hydra.main(version_base=None, config_name="conf")
 def run_language_modeling(cfg: MyConfig) -> None:
-    mask_filler_pipeline = pipeline("text-generation", model=cfg.language_model_path, tokenizer="gpt2")
+    tokenizer = AutoTokenizer.from_pretrained(cfg.tokenizer)
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = 'left'
+    mask_filler_pipeline = pipeline("text-generation", model=cfg.language_model_path, tokenizer=tokenizer)
     output_dir = cfg.output_dir
     os.makedirs(output_dir, exist_ok=True)
     #if cfg.mode.inference_mode == "file":
@@ -54,6 +58,7 @@ def _apply_to_user_input(mask_filler_pipeline, model_name, num_return_sequences,
             for i, output in enumerate(model_output):
                 print(f"{i+1}.: {output['generated_text']}")
                 top_outputs += output['generated_text'] + "\n"
+            print()
 
             o.write(top_outputs)
 
