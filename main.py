@@ -6,28 +6,48 @@ from hydra.core.config_store import ConfigStore
 
 from train import train
 
-#os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @dataclass
-class GPT2Config:
+class ModelConfig:
+    model_name: str = ""
+    checkpoint: str = ""
+    model_dim: int = 0
+    context_len: int = 0
+    train_batch_size: int = 0
+    eval_batch_size: int = 0
+    epochs: int = 0
+    lr: float = 0.00
+    weight_decay: float = 0.01
+    load_best_model_at_end: bool = False
+    mlm: bool = False
+
+
+@dataclass
+class GPT2Config(ModelConfig):
     model_name: str = "gpt2-medium"  # "gpt2" (small) d=768, "gpt2-medium" d=1024, "gpt2-large" d=1280
     checkpoint: str = ""
     model_dim: int = 1024
     context_len: int = 1024
-    #dropout: float = 0.2
-    #learning_rate: float = 1e-5
-    #adam_epsilon: float = 1e-8
     train_batch_size: int = 16
     eval_batch_size: int = 16
     epochs: int = 3
     lr: float = 0.00005
-    weight_decay: float = 0.01
-    load_best_model_at_end: bool = False
+
+
+@dataclass
+class RobertaConfig(ModelConfig):
+    model_name: str = "roberta-base"
+    checkpoint: str = ""
+    model_dim: int = 768
+    context_len: int = 512
+    train_batch_size: int = 16
+    eval_batch_size: int = 16
+    epochs: int = 3
+    lr: float = 0.00005
+    mlm: bool = True
 
 
 @dataclass
@@ -61,7 +81,7 @@ class KelmFull(DataConfig):
 
 @dataclass
 class MyConfig:
-    model: GPT2Config = GPT2Config()
+    model: ModelConfig = GPT2Config()
     data: DataConfig = KelmFull()
     output_dir: str = "/export/home/kraft/data/kelm/output"
 

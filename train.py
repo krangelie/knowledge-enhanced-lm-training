@@ -5,7 +5,8 @@ from tqdm import tqdm
 from datasets import load_dataset
 import neptune.new as neptune
 from transformers.integrations import NeptuneCallback
-from transformers import DataCollatorForLanguageModeling, AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments, TextDataset, default_data_collator
+from transformers import DataCollatorForLanguageModeling, AutoTokenizer, AutoModelForCausalLM, AutoModelForMaskedLM,\
+    Trainer, TrainingArguments, TextDataset, default_data_collator
 from transformers.utils import logging
 from sklearn.model_selection import train_test_split
 from torch.cuda import is_available
@@ -77,8 +78,13 @@ def train(cfg):
     tokenized_dataset = dataset.map(tokenize, batched=True)
     print(tokenized_dataset)
     print(tokenized_dataset["train"][:5]["input_ids"])
-    data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
-    model = AutoModelForCausalLM.from_pretrained(model_path)
+
+    if cfg.model.mlm:
+        data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=True)
+        model = AutoModelForMaskedLM.from_pretrained(model_path)
+    else:
+        data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
+        model = AutoModelForCausalLM.from_pretrained(model_path)
     device = "cuda" if is_available() else "cpu"
     model.to(device)
 
