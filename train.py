@@ -128,6 +128,6 @@ def train(cfg):
         trainer.args.num_train_epochs = cfg.model.epochs
         trainer.train(cfg.model.checkpoint)
     else:
-        train.train()
+        trainer.train()
     #trainer.evaluate(eval_dataset=dataset["test"])
     trainer.save_model()
