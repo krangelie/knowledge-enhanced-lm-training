@@ -6,8 +6,8 @@ kelm_version=kelm_full
 log_dir=$data_path/$model_name/$kelm_version
 log_file=$log_dir/train_log.out
 
-export NEPTUNE_API_TOKEN="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiI2ODVhZTIwMS1kNGZhLTRiYjQtYjhhOS1kYzhiMzkyOTFmNzcifQ=="
-export NEPTUNE_PROJECT="kraft-ml/KELM"
+export NEPTUNE_API_TOKEN="" ## Customize
+export NEPTUNE_PROJECT="" ## Customize
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
 
 
